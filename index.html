@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homework Locker</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ padding:20px;
+ background:#f7f8fc;
+ color:#27334a;
+ font-family:Arial,sans-serif;
+}
+
+button,input,select,textarea{font:inherit}
+button{
+ border:0;
+ border-radius:12px;
+ padding:10px 15px;
+ cursor:pointer;
+ background:#35435e;
+ color:white;
+ transition:.2s;
+}
+button:hover{transform:translateY(-2px);filter:brightness(1.08)}
+button:active{transform:scale(.97)}
+
+.wrap{max-width:1100px;margin:auto}
+
+header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ flex-wrap:wrap;
+ gap:12px;
+}
+
+h1{font-size:27px;margin:5px 0}
+.subtitle{color:#78849a;font-size:13px}
+
+.hero{
+ margin-top:20px;
+ padding:25px;
+ border-radius:24px;
+ background:linear-gradient(120deg,#fff4d9,#f4eaff,#e6f6ff);
+}
+
+.hero h2{margin-top:0}
+
+.stats{
+ display:flex;
+ gap:12px;
+ flex-wrap:wrap;
+ margin-top:20px;
+}
+
+.stat{
+ background:white;
+ padding:15px;
+ border-radius:15px;
+ flex:1;
+ min-width:100px;
+}
+
+.stat strong{
+ display:block;
+ font-size:25px;
+ margin-top:5px;
+}
+
+.lockers{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:15px;
+ margin-top:20px;
+}
+
+.locker{
+ padding:16px;
+ border-radius:20px;
+ min-height:250px;
+}
+
+.blue{background:#dff3ff}
+.green{background:#e3f5e8}
+.pink{background:#ffe5ef}
+
+.locker h2{font-size:19px}
+
+.shelf{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:8px;
+}
+
+.slot{
+ background:#ffffffc9;
+ color:#27334a;
+ border:1px solid white;
+ min-height:75px;
+ font-size:12px;
+ overflow:hidden;
+ overflow-wrap:anywhere;
+}
+
+.slot small{display:block;color:#77849a;margin-top:4px}
+
+.section-title{margin-top:30px}
+
+.task-list{
+ display:grid;
+ gap:10px;
+ margin-top:15px;
+}
+
+.task{
+ background:white;
+ padding:15px;
+ border-radius:15px;
+ display:flex;
+ justify-content:space-between;
+ gap:10px;
+ align-items:center;
+ flex-wrap:wrap;
+}
+
+.done{color:#238454;font-weight:bold}
+
+.modal{
+ display:none;
+ position:fixed;
+ inset:0;
+ z-index:30;
+ background:#172033a8;
+ align-items:center;
+ justify-content:center;
+ padding:15px;
+ overflow-y:auto;
+}
+
+.modal.show{display:flex}
+
+.form-card{
+ background:white;
+ padding:22px;
+ border-radius:22px;
+ width:min(480px,100%);
+ max-height:90vh;
+ overflow:auto;
+}
+
+.form-card h2{margin-top:0}
+
+.field{margin:13px 0}
+
+.field label{
+ display:block;
+ font-size:13px;
+ margin-bottom:6px;
+ font-weight:bold;
+}
+
+.field input,.field select,.field textarea{
+ width:100%;
+ border:1px solid #dce1ea;
+ border-radius:10px;
+ padding:11px;
+ background:#fafbfe;
+ color:#27334a;
+}
+
+.form-actions{
+ display:flex;
+ gap:8px;
+ justify-content:flex-end;
+ margin-top:18px;
+}
+
+.cancel{background:#e9edf4;color:#35435e}
+
+/* ROOM */
+
+.room-modal{
+ display:none;
+ position:fixed;
+ inset:0;
+ z-index:20;
+ background:#172033c9;
+ align-items:center;
+ justify-content:center;
+ padding:15px;
+ backdrop-filter:blur(5px);
+}
+
+.room-modal.show{display:flex}
+
+.room-card{
+ width:min(950px,100%);
+ height:min(750px,94vh);
+ overflow:auto;
+ border-radius:25px;
+ padding:22px;
+ transform:scale(.65);
+ opacity:0;
+}
+
+.room-modal.show .room-card{
+ animation:zoomRoom .55s cubic-bezier(.2,.85,.25,1) forwards;
+}
+
+@keyframes zoomRoom{
+ 0%{transform:scale(.65);opacity:0}
+ 70%{transform:scale(1.035);opacity:1}
+ 100%{transform:scale(1);opacity:1}
+}
+
+.room-blue{background:#dff3ff}
+.room-green{background:#e3f5e8}
+.room-pink{background:#ffe5ef}
+
+.room-header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+ flex-wrap:wrap;
+}
+
+.room-header h2{margin:5px 0}
+
+.room-back{
+ background:#ffffffc9;
+ color:#35435e;
+}
+
+.room-decoration{
+ display:flex;
+ justify-content:space-around;
+ flex-wrap:wrap;
+ gap:15px;
+ font-size:32px;
+ padding:18px;
+ margin:15px 0;
+ background:#ffffff80;
+ border-radius:18px;
+}
+
+.wall{
+ background:#c99b70;
+ border:9px solid #a97650;
+ border-radius:13px;
+ padding:17px;
+ margin-top:15px;
+ box-shadow:inset 0 0 15px #68452a35;
+}
+
+.wall-title{
+ color:#fffaf0;
+ text-align:center;
+ font-weight:bold;
+ margin-bottom:15px;
+ font-size:19px;
+}
+
+.wall-grid{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:13px;
+}
+
+.note{
+ position:relative;
+ padding:17px;
+ min-height:170px;
+ border-radius:5px;
+ color:#35435e;
+ box-shadow:3px 5px 9px #0002;
+ transform:rotate(-1deg);
+ overflow-wrap:anywhere;
+}
+
+.note:nth-child(even){transform:rotate(1deg)}
+.note-blue{background:#e6f7ff}
+.note-green{background:#e8f7d9}
+.note-pink{background:#fff0f5}
+
+.note h3{margin:5px 0 10px;font-size:16px}
+.note p{font-size:12px;margin:7px 0}
+
+.pin{
+ width:12px;
+ height:12px;
+ border-radius:50%;
+ background:#e87979;
+ position:absolute;
+ top:6px;
+ left:calc(50% - 6px);
+ box-shadow:1px 2px 3px #0003;
+}
+
+.note-status{
+ display:inline-block;
+ padding:5px 9px;
+ border-radius:20px;
+ background:#ffffffb8;
+ font-size:11px;
+ margin:8px 0;
+}
+
+.note select{
+ width:100%;
+ padding:8px;
+ border:1px solid #ddd;
+ border-radius:8px;
+ background:#ffffffd9;
+ color:#35435e;
+ font-size:12px;
+}
+
+.proof{
+ width:100%;
+ font-size:11px;
+ margin-top:8px;
+}
+
+.proof-image{
+ max-width:100%;
+ max-height:140px;
+ display:block;
+ border-radius:9px;
+ margin-top:8px;
+}
+
+.empty-wall{
+ background:#ffffffb8;
+ border-radius:15px;
+ padding:25px;
+ text-align:center;
+ grid-column:1/-1;
+ color:#647087;
+}
+
+.note-actions{margin-top:10px}
+.note-actions button{font-size:11px;padding:7px 10px}
+.delete-btn{background:#f3dede;color:#994b4b}
+
+.pixel-cat{
+ position:fixed;
+ z-index:3;
+ bottom:12px;
+ left:-70px;
+ font-size:34px;
+ animation:catWalk 24s linear infinite;
+ pointer-events:none;
+ filter:drop-shadow(2px 3px 2px #0002);
+}
+
+@keyframes catWalk{
+ 0%{left:-70px;transform:scaleX(1)}
+ 48%{left:calc(100% - 30px);transform:scaleX(1)}
+ 50%{left:calc(100% - 30px);transform:scaleX(-1)}
+ 98%{left:-70px;transform:scaleX(-1)}
+ 100%{left:-70px;transform:scaleX(1)}
+}
+
+footer{
+ text-align:center;
+ color:#9aa3b2;
+ font-size:11px;
+ margin:30px 0 15px;
+}
+
+@media(max-width:700px){
+ .lockers{grid-template-columns:1fr}
+ .wall-grid{grid-template-columns:1fr}
+ .room-card{padding:14px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<header>
+ <div>
+  <h1>HOMEWORK LOCKER</h1>
+  <div class="subtitle">OUR LITTLE TEAM WORKSPACE</div>
+ </div>
+ <button onclick="openForm()">＋ เพิ่มงานใหม่</button>
+</header>
+
+<section class="hero">
+ <h2>Welcome to our little world!</h2>
+ <p>พื้นที่เก็บงานและความสำเร็จของพวกเรา</p>
+
+ <div class="stats">
+  <div class="stat">
+   <span>งานทั้งหมด</span>
+   <strong id="total">0</strong>
+  </div>
+  <div class="stat">
+   <span>งานสำเร็จ</span>
+   <strong id="completed">0</strong>
+  </div>
+  <div class="stat">
+   <span>คะแนนสะสม</span>
+   <strong id="points">0</strong>
+  </div>
+ </div>
+</section>
+
+<h2 class="section-title">OUR LOCKERS</h2>
+<p class="subtitle">เลือกล็อกเกอร์เพื่อเข้าไปดูห้องและกระดานงาน</p>
+
+<div class="lockers">
+
+ <section class="locker blue">
+  <h2>🩵 BLUE ART STUDIO</h2>
+  <p class="subtitle">Drawing • Sketch • Art</p>
+  <div class="shelf" id="blue"></div>
+ </section>
+
+ <section class="locker green">
+  <h2>💚 MINT FASHION ROOM</h2>
+  <p class="subtitle">Fashion • Design • Craft</p>
+  <div class="shelf" id="green"></div>
+ </section>
+
+ <section class="locker pink">
+  <h2>🩷 PINK COZY ROOM</h2>
+  <p class="subtitle">Cute • Toys • Plushies</p>
+  <div class="shelf" id="pink"></div>
+ </section>
+
+</div>
+
+<h2 class="section-title">ALL TASKS</h2>
+<div class="task-list" id="allTasks"></div>
+
+<footer>MADE WITH LOVE • HOMEWORK LOCKER</footer>
+
+</div>
+
+<div class="pixel-cat">🐈</div>
+
+<!-- ADD TASK MODAL -->
+
+<div class="modal" id="formModal">
+ <div class="form-card">
+  <h2>＋ เพิ่มงานใหม่</h2>
+
+  <form id="taskForm">
+
+   <div class="field">
+    <label>ชื่องาน</label>
+    <input id="taskName" required placeholder="ชื่องานที่ต้องทำ">
+   </div>
+
+   <div class="field">
+    <label>วิชา</label>
+    <input id="taskSubject" placeholder="เช่น การงาน">
+   </div>
+
+   <div class="field">
+    <label>ผู้รับผิดชอบ</label>
+    <input id="taskOwner" placeholder="ชื่อสมาชิก">
+   </div>
+
+   <div class="field">
+    <label>กำหนดส่ง</label>
+    <input id="taskDue" type="date">
+   </div>
+
+   <div class="field">
+    <label>เลือกห้องล็อกเกอร์</label>
+    <select id="taskZone">
+     <option value="blue">🩵 Blue Art Studio</option>
+     <option value="green">💚 Mint Fashion Room</option>
+     <option value="pink">🩷 Pink Cozy Room</option>
+    </select>
+   </div>
+
+   <div class="form-actions">
+    <button type="button" class="cancel" onclick="closeForm()">ยกเลิก</button>
+    <button type="submit">บันทึกงาน</button>
+   </div>
+
+  </form>
+ </div>
+</div>
+
+<!-- ROOM MODAL -->
+
+<div class="room-modal" id="roomModal">
+ <div class="room-card" id="roomCard">
+
+  <div class="room-header">
+   <div>
+    <small>OUR LITTLE WORKSPACE</small>
+    <h2 id="roomTitle">My Room</h2>
+   </div>
+   <button class="room-back" onclick="leaveRoom()">← กลับหน้าบ้าน</button>
+  </div>
+
+  <div class="room-decoration" id="roomDecor"></div>
+
+  <div class="wall">
+   <div class="wall-title">
+    📌 OUR TASK WALL
+    <div style="font-size:11px;font-weight:normal">
+     กระดานงานของพวกเรา
+    </div>
+   </div>
+   <div class="wall-grid" id="roomTasks"></div>
+  </div>
+
+  <div style="text-align:center;margin-top:17px">
+   <button onclick="openForm(currentRoom)">＋ เพิ่มงานในห้องนี้</button>
+  </div>
+
+ </div>
+</div>
+
+<script>
+
+/* DATA */
+
+let tasks = [];
+let points = 0;
+let currentRoom = "blue";
+
+try{
+ tasks = JSON.parse(localStorage.getItem("lockerTasks")) || [];
+ points = Number(localStorage.getItem("lockerPoints")) || 0;
+}catch(e){
+ tasks = [];
+ points = 0;
+}
+
+const roomInfo = {
+ blue:{
+  title:"🩵 Blue Art Studio",
+  decor:"🎨 📚 ✏️ 🖌️ 🖼️ 🪴"
+ },
+ green:{
+  title:"💚 Mint Fashion Room",
+  decor:"👒 👗 🧵 🪡 💍 🧷"
+ },
+ pink:{
+  title:"🩷 Pink Cozy Room",
+  decor:"🧸 🐰 🎀 🧁 🌷 🪆"
+ }
+};
+
+const statusText = {
+ todo:"ยังไม่เริ่ม",
+ doing:"กำลังทำ",
+ review:"รอตรวจ",
+ done:"เสร็จแล้ว ✓"
+};
+
+/* SAVE */
+
+function saveData(){
+ try{
+  localStorage.setItem("lockerTasks",JSON.stringify(tasks));
+  localStorage.setItem("lockerPoints",String(points));
+ }catch(e){
+  alert("พื้นที่เก็บข้อมูลอาจเต็ม ลองใช้รูปที่มีขนาดเล็กลงนะ");
+ }
+}
+
+/* TEXT SAFETY */
+
+function escapeText(value){
+ return String(value ?? "").replace(/[&<>"']/g,function(c){
+  return {
+   "&":"&amp;",
+   "<":"&lt;",
+   ">":"&gt;",
+   '"':"&quot;",
+   "'":"&#39;"
+  }[c];
+ });
+}
+
+/* RENDER HOME */
+
+function render(){
+
+ document.getElementById("total").textContent=tasks.length;
+
+ document.getElementById("completed").textContent=
+  tasks.filter(t=>t.status==="done").length;
+
+ document.getElementById("points").textContent=points;
+
+ ["blue","green","pink"].forEach(zone=>{
+
+  let list=tasks.filter(t=>t.zone===zone);
+  let html="";
+
+  for(let i=0;i<9;i++){
+
+   let t=list[i];
+
+   html+=t
+    ? `<button class="slot" onclick="enterRoom('${zone}')">
+        🚪<br>${escapeText(t.name)}
+        <small>${escapeText(statusText[t.status] || "ยังไม่เริ่ม")}</small>
+       </button>`
+    : `<button class="slot" onclick="openForm('${zone}')">＋<br>ช่องว่าง</button>`;
+  }
+
+  document.getElementById(zone).innerHTML=html;
+ });
+
+ let all=document.getElementById("allTasks");
+
+ if(tasks.length===0){
+  all.innerHTML='<div class="task">ยังไม่มีงาน ลองเพิ่มงานแรกกันเลย!</div>';
+  return;
+ }
+
+ all.innerHTML=tasks.map(t=>`
+  <div class="task">
+   <div>
+    <strong>${escapeText(t.name)}</strong>
+    <div class="subtitle">
+     ${escapeText(t.subject || "ไม่ระบุวิชา")}
+     • ${escapeText(t.owner || "ไม่ระบุผู้รับผิดชอบ")}
+    </div>
+   </div>
+   <span class="${t.status==="done"?"done":""}">
+    ${escapeText(statusText[t.status] || "ยังไม่เริ่ม")}
+   </span>
+  </div>
+ `).join("");
+}
+
+/* ADD TASK */
+
+function openForm(zone){
+
+ document.getElementById("taskForm").reset();
+
+ document.getElementById("taskZone").value=zone || "blue";
+
+ document.getElementById("formModal").classList.add("show");
+}
+
+function closeForm(){
+ document.getElementById("formModal").classList.remove("show");
+}
+
+document.getElementById("taskForm").addEventListener("submit",function(e){
+
+ e.preventDefault();
+
+ let task={
+  id:Date.now(),
+  name:document.getElementById("taskName").value.trim(),
+  subject:document.getElementById("taskSubject").value.trim(),
+  owner:document.getElementById("taskOwner").value.trim(),
+  due:document.getElementById("taskDue").value,
+  zone:document.getElementById("taskZone").value,
+  status:"todo",
+  photo:null
+ };
+
+ if(!task.name)return;
+
+ tasks.push(task);
+
+ saveData();
+ render();
+ closeForm();
+
+});
+
+/* ENTER ROOM */
+
+function enterRoom(zone){
+
+ if(!roomInfo[zone])return;
+
+ currentRoom=zone;
+
+ let info=roomInfo[zone];
+
+ document.getElementById("roomTitle").textContent=info.title;
+ document.getElementById("roomDecor").textContent=info.decor;
+
+ let card=document.getElementById("roomCard");
+
+ card.className="room-card room-"+zone;
+
+ document.getElementById("roomModal").classList.remove("show");
+
+ void card.offsetWidth;
+
+ document.getElementById("roomModal").classList.add("show");
+
+ renderRoom();
+}
+
+function leaveRoom(){
+ document.getElementById("roomModal").classList.remove("show");
+}
+
+/* RENDER ROOM */
+
+function renderRoom(){
+
+ let list=tasks.filter(t=>t.zone===currentRoom);
+
+ let box=document.getElementById("roomTasks");
+
+ if(list.length===0){
+  box.innerHTML=`
+   <div class="empty-wall">
+    <div style="font-size:35px">📒</div>
+    <h3>ยังไม่มีงานในห้องนี้</h3>
+    <p>กดเพิ่มงานเพื่อเริ่มต้นกันเลย!</p>
+   </div>`;
+  return;
+ }
+
+ let colorClass={
+  blue:"note-blue",
+  green:"note-green",
+  pink:"note-pink"
+ };
+
+ box.innerHTML=list.map(t=>`
+
+  <div class="note ${colorClass[currentRoom]}">
+
+   <div class="pin"></div>
+
+   <h3>${escapeText(t.name)}</h3>
+
+   <p>📚 วิชา: ${escapeText(t.subject || "-")}</p>
+
+   <p>👤 ผู้รับผิดชอบ: ${escapeText(t.owner || "-")}</p>
+
+   <p>📅 กำหนดส่ง: ${escapeText(t.due || "ไม่กำหนด")}</p>
+
+   <span class="note-status">
+    ${escapeText(statusText[t.status] || "ยังไม่เริ่ม")}
+   </span>
+
+   ${
+    t.status==="done"
+    ? `<p style="color:#34774b;font-weight:bold">🏆 งานนี้สำเร็จแล้ว!</p>`
+    : `
+     <select onchange="changeRoomStatus(${t.id},this.value)">
+      <option value="todo" ${t.status==="todo"?"selected":""}>ยังไม่เริ่ม</option>
+      <option value="doing" ${t.status==="doing"?"selected":""}>กำลังทำ</option>
+      <option value="review" ${t.status==="review"?"selected":""}>รอตรวจ</option>
+     </select>
+
+     <label>📷 แนบรูปหลักฐาน</label>
+
+     <input class="proof" type="file"
+      accept="image/*"
+      onchange="uploadProof(${t.id},this)">
+    `
+   }
+
+   ${
+    t.photo
+    ? `<img class="proof-image" src="${t.photo}" alt="รูปหลักฐาน">`
+    : ""
+   }
+
+   <div class="note-actions">
+    <button class="delete-btn" onclick="deleteTask(${t.id})">ลบงาน</button>
+   </div>
+
+  </div>
+
+ `).join("");
+}
+
+/* CHANGE STATUS */
+
+function changeRoomStatus(id,newStatus){
+
+ let task=tasks.find(t=>t.id===id);
+
+ if(!task)return;
+
+ if(!["todo","doing","review"].includes(newStatus))return;
+
+ task.status=newStatus;
+
+ saveData();
+ render();
+ renderRoom();
+}
+
+/* UPLOAD PROOF */
+
+function uploadProof(id,input){
+
+ let file=input.files[0];
+
+ if(!file)return;
+
+ if(!file.type.startsWith("image/")){
+  alert("กรุณาเลือกรูปภาพนะ");
+  input.value="";
+  return;
+ }
+
+ if(file.size>1500000){
+  alert("รูปใหญ่เกินไป ลองเลือกรูปไม่เกิน 1.5 MB นะ");
+  input.value="";
+  return;
+ }
+
+ let task=tasks.find(t=>t.id===id);
+
+ if(!task)return;
+
+ let reader=new FileReader();
+
+ reader.onload=function(){
+
+  let wasDone=task.status==="done";
+
+  task.photo=reader.result;
+  task.status="done";
+
+  if(!wasDone){
+   points+=10;
+  }
+
+  saveData();
+  render();
+  renderRoom();
+
+  alert("บันทึกหลักฐานเรียบร้อย! 🎉 ได้รับ 10 แต้ม");
+ };
+
+ reader.readAsDataURL(file);
+}
+
+/* DELETE TASK */
+
+function deleteTask(id){
+
+ if(!confirm("ต้องการลบงานนี้ใช่ไหม?"))return;
+
+ tasks=tasks.filter(t=>t.id!==id);
+
+ saveData();
+ render();
+ renderRoom();
+}
+
+/* START */
+
+render();
+
+</script>
+
+</body>
+</html>
